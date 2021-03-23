@@ -47,6 +47,7 @@ https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-medi
 * Flow Console - inside flow, if you click details w/o first selecting an output, you will see the details of the last outputs's details you viewed.  Details button should not enable without selecting an output first.
 
 * Unable to create a VPC type Flow Source due to circular dependance between the following two resources:
-  - AWS::MediaConnect::Flow
-  - AWS::MediaConnect::FlowVpcInterface
-  Requires creating the flow as a Standard type source and then either in Console or CLI switching the flow source to use the created VPC interface: e.g. `aws mediaconnect update-flow-source`
+  - `AWS::MediaConnect::Flow`
+  - `AWS::MediaConnect::FlowVpcInterface`
+
+  > Requires creating the flow as a Standard type source and then either in Console or CLI switching the flow source to use the created VPC interface: e.g. `aws mediaconnect update-flow-source`
