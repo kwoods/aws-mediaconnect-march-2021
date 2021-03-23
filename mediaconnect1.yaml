@@ -1,0 +1,81 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Issues Encountered with AWS::MediaConnect::Flow Resource
+# https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-mediaconnect-flow.html
+
+Resources:
+  FlowNo1:
+    Type: AWS::MediaConnect::Flow
+    Properties:
+      AvailabilityZone: us-east-1a
+      Name: flow1
+      Source:
+        Name: flow1-source1
+        Protocol: 'zixi-push'
+        MaxLatency: 6000
+        IngestPort: 2088
+        WhitelistCidr: 0.0.0.0/0
+        StreamId: Flow1Source1StreamId
+  FlowNo1VpcInterface:
+    Type: AWS::MediaConnect::FlowVpcInterface
+    Properties:
+      FlowArn: !GetAtt FlowNo1.FlowArn
+      Name: flow1-interface1
+      RoleArn: arn:aws:iam::xxxxxxxx:role/MediaConnectRole
+      SecurityGroupIds: 
+        - sg-xxxxxxxx
+      SubnetId: subnet-xxxxxxxx
+  FlowNo1Output1:
+    Type: AWS::MediaConnect::FlowOutput
+    Properties:
+      Name: flow1-output1
+      FlowArn: !GetAtt FlowNo1.FlowArn
+      Protocol: 'zixi-pull'
+      MaxLatency: 6000
+      CidrAllowList: 
+        - 10.0.0.1/32
+        - 10.0.0.2/32
+        - 10.0.0.3/32
+        # - 10.0.0.4/32 # More than 3 Not Supported
+        # Results in Stack Rollback:
+        # Error occurred during operation 'AWS::MediaConnect::FlowOutput'.
+      RemoteId: my-receiver-id.somewhere.com
+      # VpcInterfaceAttachment:
+      #   VpcInterfaceName: !Ref FlowNo1VpcInterface  # Does not return Name
+
+Outputs:
+  Flow1Arn:
+    Description: ARN for Flow1
+    Value: !GetAtt FlowNo1.FlowArn # Works
+
+  Flow1Az:
+    Description: AZ for Flow1
+    Value: !GetAtt FlowNo1.FlowAvailabilityZone # Works
+
+  # Flow1IngestIp:
+  #   Description: IngestIP for Flow1
+  #   Value: !GetAtt FlowNo1.IngestIp
+  # Results in Stack Rollback: 
+  # Requested attribute IngestIp does not exist in schema for AWS::MediaConnect::Flow
+
+  # Flow1SourceArn:
+  #   Description: Source ARN for Flow1
+  #   Value: !GetAtt FlowNo1.SourceArn
+  # Results in Stack Rollback: 
+  # Requested attribute SourceArn does not exist in schema for AWS::MediaConnect::Flow
+
+  # Flow1OutputArn:
+  #   Description: OutputArn for FlowNo1Output1
+  #   Value: !GetAtt FlowNo1Output1.OutputArn
+  # Results in Stack Rollback:
+  # Unable to retrieve OutputArn attribute for AWS::MediaConnect::FlowOutput, with error message Unable to marshall request to JSON: Parameter 'flowArn' must not be null
+
+  Flow1VpcInterfaceNetworkRef:
+    Description: Ref for FlowNo1VpcInterface
+    Value: !Ref FlowNo1VpcInterface # Works
+
+  # Flow1VpcInterfaceNetworkInterfaceIds:
+  #   Description: NetworkInterfaceIds for FlowNo1VpcInterface
+  #   Value: !GetAtt FlowNo1VpcInterface.NetworkInterfaceIds
+  # Results in Stack Rollback:
+  # Template format error: Every Value member must be a string.
